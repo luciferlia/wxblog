@@ -14,3 +14,8 @@
         回复{{index}}:<template is="wxParse" data="{{wxParseData:item}}"/>
     </block>
 </view>
+ <view class="uploader">      
+           <view class="uploader-text" id="the-id" bindtap="doNav">
+            <text>返回首页</text>
+        </view>
+    </view>

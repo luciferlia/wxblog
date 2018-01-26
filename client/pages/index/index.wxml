@@ -30,7 +30,7 @@
             <text>上传图片</text>
         </view>
         <view class="uploader-container" wx:if="{{imgUrl}}">
-            <image
+            <image 
                 class="uploader-image"
                 src="{{imgUrl}}"
                 mode="aspectFit"
@@ -38,7 +38,59 @@
             ></image>
         </view>
     </view>
-
+    <!--下载测试-->
+ <view class="uploader">      
+           <view class="uploader-text" bindtap="doDownload">
+            <text>下载测试</text>
+        </view>
+    </view>
+        <!--模态框测试-->
+ <view class="uploader">      
+           <view class="uploader-text" bindtap="doModal">
+            <text>模态框</text>
+        </view>
+    </view>
+    <view class="uploader">      
+           <view class="uploader-text" bindtap="doSheet">
+            <text>操作菜单</text>
+        </view>
+    </view>
+        <!--录音测试-->
+ <view class="uploader">      
+           <view class="uploader-text" bindtap="doVoice">
+            <text>录音测试</text>
+        </view>
+    </view>
+            <!--绘画测试-->
+ <view class="uploader">      
+           <navigator url="./canvas" open-type="navigate" class="uploader-text">
+            <text>绘画测试</text>
+        </navigator>
+    </view>
+     <!--背景音频播放测试-->
+ <view class="uploader">      
+           <view class="uploader-text" bindtap="doAudio">
+            <text>背景音频播放</text>
+        </view>
+    </view>
+     <!--音频组件测试-->
+   <view class="uploader">
+        <navigator url="./audio" open-type="navigate" class="uploader-text">
+            <text>音频组件</text>
+        </navigator>
+    </view>
+     <!--视频组件测试-->
+   <view class="uploader">
+        <navigator url="./video?id=1" open-type="navigate" class="uploader-text">
+            <text>视频组件</text>
+        </navigator>
+    </view>
+       <!--相机组件测试-->
+   <view class="uploader">
+        <navigator url="./camera" open-type="navigate" class="uploader-text">
+            <text>相机组件</text>
+        </navigator>
+    </view>
     <!-- 信道连接测试 -->
     <view class="tunnel">
         <view class="tunnel-text">
@@ -49,12 +101,21 @@
             <text>发送消息</text>
         </view>
     </view>
-
+    <!--socket测试-->
+ <view class="uploader">      
+           <view class="uploader-text" bindtap="doSocket">
+            <text>socket测试</text>
+        </view>
+    </view>
     <!-- 上传图片测试 -->
     <view class="uploader">
         <navigator url="../addCgi/addCgi" open-type="navigate" class="uploader-text">
             <text>快速增加 CGI</text>
         </navigator>
     </view>
-    
+     <view class="uploader">
+        <navigator open-type="navigate" class="uploader-text" bindtap="doNav">
+            <text>测试导航功能</text>
+        </navigator>
+    </view>
 </view>

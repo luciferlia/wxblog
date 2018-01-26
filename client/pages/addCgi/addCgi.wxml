@@ -2,7 +2,7 @@
 <view class="container">
     <!-- 请求按钮 -->
     <view class="list">
-        <view class="list-item" bindtap="testCgi">
+        <view class="list-item" bindtap="testCgi" id="the-id">
             <text>测试 CGI</text>
         </view>
         <view class="list-item">

@@ -3,7 +3,11 @@
     "pages/index/index",
     "pages/addCgi/addCgi",
     "pages/index/list",
-    "pages/md/20171205"
+    "pages/md/20171205",
+    "pages/index/audio",
+    "pages/index/video",
+    "pages/index/camera",
+    "pages/index/canvas"
   ],
   "window":{
    "window": {
