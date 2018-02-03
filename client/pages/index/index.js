@@ -8,6 +8,115 @@ wx.setTopBarText({
 wx.setNavigationBarTitle({
   title: '首页'
 })
+//获取加速度值
+wx.onAccelerometerChange(function (res) {
+  console.log(res.x)
+  console.log(res.y)
+  console.log(res.z)
+})
+//获取罗盘数据
+
+wx.onCompassChange(function (res) {
+  console.log(res.direction)
+})
+//获取手机信息
+wx.getSystemInfo({
+  success: function (res) {
+    console.log(res.brand)
+    console.log(res.model)
+    console.log(res.pixelRatio)
+    console.log(res.windowWidth)
+    console.log(res.statusBarHeight)
+    console.log(res.model)
+    console.log(res.language)
+    console.log(res.version)
+    console.log(res.system)
+    console.log(res.platform)
+    console.log(res.fontSizeSetting)
+    console.log(res.SDKVersion)
+  }
+})
+//获取位置
+wx.getLocation({
+  type: 'wgs84',
+  success: function (res) {
+    var latitude = res.latitude
+    var longitude = res.longitude
+    var speed = res.speed
+    var accuracy = res.accuracy
+    console.log(latitude)
+    console.log(longitude)
+    console.log(speed)
+    console.log(accuracy)
+  }
+})
+//获取网络类型
+wx.getNetworkType({
+  success: function (res) {
+    // 返回网络类型, 有效值：
+    // wifi/2g/3g/4g/unknown(Android下不常见的网络类型)/none(无网络)
+    var networkType = res.networkType
+    console.log(networkType)
+    if (networkType === '2g' || networkType === '3g' || networkType==='4g'){
+      wx.showToast({
+        title: '您当前处于数据流量模式，请小心使用',
+        icon: 'none',
+        image: '',
+        duration: 3000,
+        mask: true
+      })
+    }else{
+      wx.showToast({
+        title: '您当前处于WiFi模式，可以放心使用',
+        icon: 'none',
+        image: '',
+        duration: 3000,
+        mask: true
+      })
+    }
+  }
+})
+//监听网络变化
+wx.onNetworkStatusChange(function (res) {
+  console.log(res.isConnected)
+  console.log(res.networkType)
+  if(res.isConnected===true){
+    if(res.networkType=='wifi'){
+      wx.showToast({
+        title: '您已切换至WiFi环境',
+        icon: 'none',
+        image: '',
+        duration: 3000,
+        mask: true
+      })
+    }else{
+      wx.showToast({
+        title: '您已切换至数据流量环境',
+        icon: 'none',
+        image: '',
+        duration: 3000,
+        mask: true
+      })
+    }
+  }
+})
+//剪切板
+wx.setClipboardData({
+  data: 'data',
+  success: function (res) {
+    wx.getClipboardData({
+      success: function (res) {
+        console.log(res.data) // data
+      }
+    })
+  }
+})
+//获取剪切板内容
+wx.getClipboardData({
+  success: function (res) {
+    console.log(res.data)
+  }
+})
 //跳转到 tabBar 页面，并关闭其他所有非 tabBar 页面
 wx.switchTab({
   url: 'pages/addCgi/addCgi'
@@ -32,7 +141,8 @@ Page({
         userInfo: {},
         logged: false,
         takeSession: false,
-        requestResult: ''
+        requestResult: '',
+        requestBlue:''
     },
    
     // 用户登录示例
@@ -93,7 +203,7 @@ Page({
         })
         this.doRequest()
     },
-
+    
     doRequest: function () {
         util.showBusy('请求中...')
         var that = this
@@ -119,6 +229,45 @@ Page({
         }
     },
 
+
+
+    // 切换是否带有登录态
+    switchBlue: function (e) {
+      this.setData({
+        takeSession: e.detail.value
+      })
+      this.doBlue()
+    },
+
+    doBlue: function () {
+      util.showBusy('请求中...')
+      var that = this
+      var options = {
+        url: config.service.requestUrl,
+        login: true,
+        success(result) {
+          util.showSuccess('请求成功完成')
+          console.log('request success', result)
+          that.setData({
+            requestResult: JSON.stringify(result.data)
+          })
+        },
+        fail(error) {
+          util.showModel('请求失败', error);
+          console.log('request fail', error);
+        }
+      }
+      if (this.data.takeSession) {  // 使用 qcloud.request 带登录态登录
+        qcloud.request(options)
+      } else {    // 使用 wx.request 则不带登录态
+        wx.request(options)
+      }
+    },
+  screenBright:function(){
+    wx.setScreenBrightness({
+      value: 0.3
+    })
+  },
     // 上传图片接口
     doUpload: function () {
         var that = this
@@ -182,8 +331,37 @@ Page({
                 console.error(e)
             }
         })
+        //保存文件到本地
+        wx.saveFile({
+          tempFilePath: filePath,
+          success:function(res){
+            var savedFilePath=res.savedFilePath
+            console.log(savedFilePath)
+          }
+        })
     },
+//扫码测试
+  doScan:function(e){
+    // 允许从相机和相册扫码
+    wx.scanCode({
+      success: function(res) {
+        console.log(res)
+        console.log(res.result)
+        console.log(res.scanType)
+        console.log(res.charSet)
+        console.log(res.path)
+      }
+    })
 
+    // 只允许从相机扫码
+   /* wx.scanCode({
+      onlyFromCamera: true,
+      success: (res) => {
+        console.log(res)
+      }
+    })*/
+
+  },
     // 预览图片
     previewImg: function () {
         wx.previewImage({
@@ -195,6 +373,52 @@ Page({
             }
         })
        
+    },
+    location:function(e){
+
+      wx.getLocation({
+        type: 'gcj02', //返回可以用于wx.openLocation的经纬度
+        success: function (res) {
+          var latitude = res.latitude
+          var longitude = res.longitude
+          wx.openLocation({
+            latitude: latitude,
+            longitude: longitude,
+            scale: 28
+          })
+        }
+      })
+    },
+    //获取本地保存文件
+    doSaveF:function(e){
+     var that=this
+     wx.getSavedFileList({
+       success:function(res){
+         console.log(res.fillList)//文件的本地路径
+         console.log(res.createTime)//文件的保存时的时间戳，从1970/01/01 08:00:00 到当前时间的秒数
+         console.log(res.size)//文件大小，单位B
+       }
+     })
+      wx.getSavedFileInfo({
+        filePath: 'wxfile://somefile', //仅做示例用，非真正的文件路径
+        success: function (res) {
+          console.log(res.size)
+          console.log(res.createTime)
+        }
+      })
+//
+      wx.downloadFile({
+        url: 'http://example.com/somefile.pdf',
+        success: function (res) {
+          var filePath = res.tempFilePath
+          wx.openDocument({
+            filePath: filePath,
+            success: function (res) {
+              console.log('打开文档成功')
+            }
+          })
+        }
+      })
     },
     //录音测试
     doVoice:function(){

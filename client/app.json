@@ -7,7 +7,8 @@
     "pages/index/audio",
     "pages/index/video",
     "pages/index/camera",
-    "pages/index/canvas"
+    "pages/index/canvas",
+    "pages/index/map"
   ],
   "window":{
    "window": {

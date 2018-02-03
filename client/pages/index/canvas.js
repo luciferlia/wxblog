@@ -3,8 +3,25 @@ Page({
 data:{
   x:0,
   y:0,
-  hidden:true
+  hidden:true,
+  hiddens:false,
+  hiddend:true
 },
+  refresh:function(e){
+    wx.startPullDownRefresh()
+    this.setData({
+      hiddens:true,
+      hiddend:false
+    })
+  },
+  stoprefresh:function(e){
+    wx.stopPullDownRefresh()
+    this.setData({
+      hiddens: false,
+      hiddend: true
+    })
+
+  },
   /**
    * 页面的初始数据
    */
@@ -30,7 +47,7 @@ end:function(e){
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function (e) {
-    
+   
   },
  
   /**
@@ -186,8 +203,59 @@ end:function(e){
 
  ctr.draw()
 
+ const ctrs = wx.createCanvasContext('mycans1')
+ //Draw points
+ ctrs.beginPath()
+ ctrs.arc(20, 20, 2, 0, 2 * Math.PI)
+ ctrs.setFillStyle('red')
+ ctrs.fill()
 
+ ctrs.beginPath()
+ ctrs.arc(200, 20, 2, 0, 2 * Math.PI)
+ ctrs.setFillStyle('lightgreen')
+ ctrs.fill()
 
+ ctrs.beginPath()
+ ctrs.arc(20, 100, 2, 0, 2 * Math.PI)
+ ctrs.arc(200, 100, 2, 0, 2 * Math.PI)
+ ctrs.setFillStyle('blue')
+ ctr.fill()
+
+ ctrs.setFillStyle('black')
+ ctrs.setFontSize(12)
+
+ // Draw guides
+ ctrs.beginPath()
+ ctrs.moveTo(20, 20)
+ ctrs.lineTo(20, 100)
+ ctrs.lineTo(150, 75)
+
+ ctrs.moveTo(200, 20)
+ ctrs.lineTo(200, 100)
+ ctrs.lineTo(70, 75)
+ ctrs.setStrokeStyle('#AAAAAA')
+ ctrs.stroke()
+
+ // Draw quadratic curve
+ ctrs.beginPath()
+ ctrs.moveTo(20, 20)
+ ctrs.bezierCurveTo(20, 100, 200, 100, 200, 20)
+ ctrs.setStrokeStyle('black')
+ ctrs.stroke()
+
+ ctrs.draw()
+ const ctrd = wx.createCanvasContext('mycans2')
+    ctrd.setFontSize(20)
+    ctrd.fillText('Hello', 20, 20)
+    ctrd.strokeRect(100, 10, 150, 100)
+    ctrd.rotate(20 * Math.PI / 180)
+    ctrd.translate(0,10)
+    ctrd.strokeRect(100, 10, 150, 100)
+    ctrd.rotate(20 * Math.PI / 180)
+    ctrd.translate(0, 10)
+    ctrd.strokeRect(100, 10, 150, 100)
+
+    ctrd.draw()
   },
 
   /**
