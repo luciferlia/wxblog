@@ -1,5 +1,6 @@
 //index.js
 var qcloud = require('../../vendor/wafer2-client-sdk/index')
+var constants = require('../../vendor/wafer2-client-sdk/lib/constants');
 var config = require('../../config')
 var util = require('../../utils/util.js')
 wx.setTopBarText({
@@ -14,6 +15,17 @@ wx.onAccelerometerChange(function (res) {
   console.log(res.y)
   console.log(res.z)
 })
+//设置
+ /*wx.openSetting({
+  success: (res) => {
+   
+     * res.authSetting = {
+     *   "scope.userInfo": true,
+     *   "scope.userLocation": true
+     * }
+     
+  }
+})*/
 //获取罗盘数据
 
 wx.onCompassChange(function (res) {
@@ -111,12 +123,22 @@ wx.setClipboardData({
     })
   }
 })
+
+//用户截屏事件
+wx.onUserCaptureScreen(function (res) {
+  console.log('用户截屏了')
+})
 //获取剪切板内容
 wx.getClipboardData({
   success: function (res) {
     console.log(res.data)
   }
 })
+//监听蓝牙适配器状态变化事件
+wx.onBluetoothAdapterStateChange(function (res) {
+  console.log(`adapterState changed, now is`, res)
+})
+
 //跳转到 tabBar 页面，并关闭其他所有非 tabBar 页面
 wx.switchTab({
   url: 'pages/addCgi/addCgi'
@@ -142,7 +164,8 @@ Page({
         logged: false,
         takeSession: false,
         requestResult: '',
-        requestBlue:''
+        requestBlue:'',
+        searchBlues:true 
     },
    
     // 用户登录示例
@@ -196,6 +219,7 @@ Page({
         })
     },
 
+
     // 切换是否带有登录态
     switchRequestMode: function (e) {
         this.setData({
@@ -231,41 +255,121 @@ Page({
 
 
 
-    // 切换是否带有登录态
-    switchBlue: function (e) {
-      this.setData({
-        takeSession: e.detail.value
-      })
-      this.doBlue()
+    // 切换
+    switchBlue: function (e) {    
+      console.log(e.detail.value)//true  or false
+      if (e.detail.value){
+        this.setData({
+          searchBlues: false
+        })
+        this.doBlue()
+      }else{
+        this.setData({
+          searchBlues: true
+        })
+      }
     },
 
     doBlue: function () {
-      util.showBusy('请求中...')
+      util.showBusy('蓝牙打开请求中...')
       var that = this
-      var options = {
-        url: config.service.requestUrl,
-        login: true,
-        success(result) {
-          util.showSuccess('请求成功完成')
-          console.log('request success', result)
-          that.setData({
-            requestResult: JSON.stringify(result.data)
-          })
+      wx.openBluetoothAdapter({
+        success: function(res) {
+          console.log('blue'+res)
         },
-        fail(error) {
-          util.showModel('请求失败', error);
-          console.log('request fail', error);
+        fail:function(res){
+          console.log('error'+res.errMsg)
         }
+      })
+      wx.getBluetoothAdapterState({
+        success: function(res) {
+          console.log('blues information'+res.discovering)
+          console.log('blue states'+res.available)
+        },
+        fail:function(res){
+          console.log('errorss' + res.errMsg)
+        }
+      })
+      
+    },
+    // 搜索蓝牙
+    switchSearch: function (e) {
+      console.log(e.detail.value)//true  or false
+      if (e.detail.value) {
+        this.searchBlue()
+      }else{
+        wx.stopBluetoothDevicesDiscovery({
+          success: function (res) {
+            console.log(res.errMsg)
+          }
+        })
       }
-      if (this.data.takeSession) {  // 使用 qcloud.request 带登录态登录
-        qcloud.request(options)
-      } else {    // 使用 wx.request 则不带登录态
-        wx.request(options)
+    },
+
+    searchBlue: function () {
+      util.showBusy('蓝牙搜索请求中...')
+      var that = this
+      // 以微信硬件平台的蓝牙智能灯为例，主服务的 UUID 是 FEE7。传入这个参数，只搜索主服务 UUID 为 FEE7 的设备
+      wx.startBluetoothDevicesDiscovery({
+        services: ['FEE7'],
+        allowDuplicatesKey:false,
+        interval:0,
+        success: function (res) {
+          console.log(res)
+        },
+        fail:function(res){
+          console.log(res.errMsg)
+        }
+      })
+
+    },
+
+
+
+    // iBeacon搜索
+    switchBeacon: function (e) {
+      console.log(e.detail.value)//true  or false
+      if (e.detail.value) {
+        this.doBeacon()
+      }else{
+        wx.stopBeaconDiscovery({
+          success:function(res){
+
+          },
+          fail:function(res){
+           console.log(res.errMsg)
+          }
+        })
       }
+    },
+
+    doBeacon: function () {
+      util.showBusy('正在搜索附近的iBeacon商户...')
+      var that = this
+      wx.startBeaconDiscovery({
+        uuids: ['FEE7'],
+        success:function(res){
+          console.log(res.errMsg)
+        },fail:function(res){
+          console.log(res.errMsg)
+        }
+      })
     },
   screenBright:function(){
     wx.setScreenBrightness({
       value: 0.3
+    })
+  },
+  //微信既不数获取
+  doRun:function(e){
+    wx.getWeRunData({
+      success(res) {
+        const encryptedData = res.encryptedData
+        const iv=res.iv
+        consolo.log(encryptedData)
+        console.log(iv)
+        
+      }
     })
   },
     // 上传图片接口
@@ -339,6 +443,56 @@ Page({
             console.log(savedFilePath)
           }
         })
+    },
+    //收货地址
+    doAddr:function(e){
+      var that=this
+      wx.chooseAddress({
+        success: function (res) {
+          console.log(res.userName)
+          console.log(res.postalCode)
+          console.log(res.provinceName)
+          console.log(res.cityName)
+          console.log(res.countyName)
+          console.log(res.detailInfo)
+          console.log(res.nationalCode)
+          console.log(res.telNumber)
+        }
+      })
+
+    },
+    //获取发票抬头测试
+    doInvo:function(e){
+    wx.chooseInvoiceTitle({
+      success(res){
+    console.log(res.type)
+    console.log(res.title)
+    console.log(res.taxNumber)
+    console.log(res.companyAddress)
+    console.log(res.bankAccount)
+    console.log(res.bankName)
+    console.log(res.telephone)
+      },
+      fail(res){
+    console.log(res.errMsg)
+      }
+    })
+    },
+    //增加卡券测试
+    doCard:function(e){
+      var that=this
+      wx.addCard({
+        cardList: [{
+          cardId:'',
+          cardExt:'{"code":"","openid":"","timestamp":"","signature":""}'
+        },{
+            cardId: '',
+            cardExt: '{"code":"","openid":"","timestamp":"","signature":""}'
+        }],
+        success:function(res){
+          console.log(res.cardList)
+        }
+      })
     },
 //扫码测试
   doScan:function(e){
@@ -420,10 +574,34 @@ Page({
         }
       })
     },
+    //获取手机联系人
+    getPhoneNumber:function(e){
+      
+    },
     //录音测试
     doVoice:function(){
       var that=this
      const recorderManager=wx.getRecorderManager()
+     // 可以通过 wx.getSetting 先查询一下用户是否授权了 "scope.record" 这个 scope
+     wx.getSetting({
+       success:function(res){
+           consolo.log(res.authSetting)
+
+         if (!res.authSetting['scope.record']) {
+           wx.authorize({
+             scope: 'scope.record',
+             success() {
+               // 用户已经同意小程序使用录音功能，后续调用 wx.startRecord 接口不会弹窗询问
+              
+             }
+           })
+         }
+       },
+       fail:function(res){
+         console.log(res.errMsg)
+       }
+     })
+
       recorderManager.onStart((res)=>{
         console.log('recorder start')
       })

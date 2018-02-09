@@ -8,6 +8,32 @@ Page({
         requestResult: '',
         canIUseClipboard: wx.canIUse('setClipboardData')
     },
+    onShareAppMessage: function (res) {
+      if (res.from === 'button') {
+        // 来自页面内转发按钮
+        console.log(res.target)
+      }
+      return {
+        title: '分享文章',
+        path: '/page/addCgi/addCgi',
+        success: function (res) {
+          // 转发成功
+          wx.getShareInfo({
+            shareTicket: res.shareTickets,
+            success:function(info){
+              console.log(info.encryptedData)
+              console.log(info.iv)
+            },
+            fail:function(info){
+              console.log(info.errMsg)
+            }
+          })
+        },
+        fail: function (res) {
+          // 转发失败
+        }
+      }
+    },
 
     testCgi: function () {
         util.showBusy('请求中...')

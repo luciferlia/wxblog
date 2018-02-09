@@ -1,19 +1,19 @@
 <!--index.wxml-->
 <view class="container">
     <!-- 用户登录测试 -->
-    <view class="userinfo" bindtap="login">
+    <view class="userinfo" style='position:relative;' >
         <image
             class="userinfo-avatar"
             src="{{logged ? userInfo.avatarUrl : './user-unlogin.png'}}"
             background-size="cover"
         ></image>
-        <view>
+        <view bindtap="login">
             <text class="userinfo-nickname">{{logged ? userInfo.nickName : '点击测试登录接口'}}</text>
             <text class="userinfo-nickname" wx:if="{{logged}}">{{userInfo.lastLoginTime}}</text>
        
         </view>
-        <button style="width:100rpx;font-size:0.5em;float:right;" bindtap='location'>选择地址</button>
-        <button style="width:100rpx;font-size:0.5em;float:right;" bindtap='screenBright'>护眼模式</button>
+        <image src='../../images/location.png' style='height:60rpx;width:60rpx;right:5rpx;position:absolute;'bindtap="location"></image>
+     
     </view>
 
     <!-- 信道连接测试 -->
@@ -32,10 +32,44 @@
             <text bindtap="doBlue">打开蓝牙</text>
             <switch class="tunnel-switch" bindchange="switchBlue" color="#007AFF"/>
         </view>
-        <view class="tunnel-text" wx:if="{{requestBlue}}">
-            <text class="request-text">{{'请求结果：' + requestBlue}}</text>
+        <view class="tunnel-text uploader-text" hidden="{{searchBlues}}">
+            <text bindtap="searchBlue">搜索附近可配对蓝牙</text>
+            <switch class="tunnel-switch" bindchange="switchSearch" color="#007AFF"/>
         </view>
     </view>
+<!-- 获取手机联系人测试 -->
+    <view class="tunnel" style='position:relative;'>
+        <view class="tunnel-text uploader-text">
+            <text >获取手机联系人</text>
+           <button open-type='getPhoneNumber' style="background-color:white;border:1rpx solid #09BB07;right:5rpx;position:absolute;" bindgetphonenumber='getPhoneNumber'>确定</button>
+        </view>
+    </view>
+<!-- 收货地址测试 -->
+    <view class="tunnel">
+        <view class="tunnel-text uploader-text" bindtap="doAddr">
+            <text >收货地址测试</text>         
+        </view>
+    </view>
+    <!-- 微信记步数获取测试 -->
+    <view class="tunnel">
+        <view class="tunnel-text uploader-text" bindtap="doRun">
+            <text >微信记步数获取测试</text>         
+        </view>
+    </view>
+    <!-- 添加卡券测试 -->
+    <view class="tunnel">
+        <view class="tunnel-text uploader-text" bindtap="doCard">
+            <text >添加卡券测试</text>         
+        </view>
+    </view>
+  <!-- iBeacon连接测试 -->
+    <view class="tunnel">
+        <view class="tunnel-text uploader-text">
+            <text bindtap="doBeacon">搜索附近的iBeacon</text>
+            <switch class="tunnel-switch" bindchange="switchBeacon" color="#007AFF"/>
+        </view>
+    </view>
+
     <!-- 上传图片测试 -->
     <view class="uploader">
         <view class="uploader-text" bindtap="doUpload">
@@ -90,6 +124,13 @@
             <text>绘画测试</text>
         </navigator>
     </view>
+                <!--消息模板测试-->
+ <view class="uploader">      
+           <navigator url="./mobans" open-type="navigate" class="uploader-text">
+            <text>消息模板测试</text>
+        </navigator>
+    </view>
+                 
        <!--地图组件测试-->
  <view class="uploader">      
            <navigator url="./map" open-type="navigate" class="uploader-text">
